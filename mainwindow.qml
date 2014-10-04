@@ -25,8 +25,10 @@ ApplicationWindow {
     ShapefileView {
         id: view
         anchors.left: hello.right
-        width: 1000; height: 800
+        width:600; height: 400
         source: "indoor_1.csv"
+        scale: 2.0
+        transformOrigin : "TopLeft"
     }
 
     Button {

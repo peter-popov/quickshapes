@@ -76,18 +76,6 @@ bool triangulate(const std::vector<QPointF>& poly, TessResult& result)
 
 ShapefileModel::ShapefileModel(const QString& source)
 {
-    // std::vector<QPointF> dt =
-    //     {{0, 0},
-    //     {100, 0},
-    //     {100, 100},
-    //     {80, 100},
-    //     {80, 20},
-    //     {20, 20},
-    //     {20, 100},
-    //     {0, 100},
-    //     {0, 0}};
-    // polygons.push_back(dt);
-
     typedef double coord_t;
     typedef boost::geometry::model::point<coord_t, 2, boost::geometry::cs::cartesian> Point;
     typedef boost::geometry::model::polygon<Point> Polygon;
@@ -111,7 +99,7 @@ ShapefileModel::ShapefileModel(const QString& source)
         auto ring = boost::geometry::exterior_ring(poly);
         for(auto& p: ring)
         {
-            v.push_back({2*boost::geometry::get<0>(p), -2*boost::geometry::get<1>(p)});
+            v.push_back({boost::geometry::get<0>(p), -boost::geometry::get<1>(p)});
         }
         polygons.push_back(std::move(v));
     }        
@@ -174,17 +162,24 @@ QSGNode* ShapefileView::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 
 	if (!oldNode)
 	{
-        oldNode = new QSGNode();
+        auto node = new QSGClipNode();
+        //
+        // todo: Clip rectange does not work in screen coords, there must be better way to do this
+        auto rc = this->mapRectFromScene(boundingRect());
+        rc.moveTo(0,0);
+        node->setClipRect(rc);
+        node->setIsRectangular(true);
         for (size_t i = 0; i < model->itemsCount(); ++i)
         {
             TessResult result;
             triangulate(model->getItem(i), result);
             for (auto& p: result.points)
             {
-                oldNode->appendChildNode(create_geometry_node(p.first, p.second));    
+                node->appendChildNode(create_geometry_node(p.first, p.second));    
             }            
         }
-        oldNode->markDirty(QSGNode::DirtyGeometry);
+        node->markDirty(QSGNode::DirtyGeometry);
+        return node;
     }
 	
 	return oldNode;
