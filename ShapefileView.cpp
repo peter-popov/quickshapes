@@ -1,8 +1,7 @@
 #include "ShapefileView.hpp"
 #include <QSGSimpleRectNode>
-#include <boost/geometry.hpp>
-#include <fstream>
 #include <GL/glut.h>
+#include "WktShapesModel.hpp"
 
 #ifndef CALLBACK
 #define CALLBACK
@@ -74,51 +73,6 @@ bool triangulate(const std::vector<QPointF>& poly, TessResult& result)
 
 //=============================
 
-ShapefileModel::ShapefileModel(const QString& source)
-{
-    typedef double coord_t;
-    typedef boost::geometry::model::point<coord_t, 2, boost::geometry::cs::cartesian> Point;
-    typedef boost::geometry::model::polygon<Point> Polygon;
-
-    std::ifstream file(source.toStdString());   
-    if (!file)
-        return; 
-    int skip = 1;
-    for( std::string line; getline( file, line ); )
-    {
-        if (skip) {skip--;continue;}
-        auto pos_a = line.find_first_of('\"') + 1;
-        auto pos_b = line.find_last_of('\"');
-        if ( pos_b <= pos_a )
-            continue;
-
-        Polygon poly;
-        auto wtk_feature = line.substr(pos_a, pos_b - pos_a);
-        boost::geometry::read_wkt(wtk_feature, poly);
-        std::vector<QPointF> v;
-        auto ring = boost::geometry::exterior_ring(poly);
-        for(auto& p: ring)
-        {
-            v.push_back({boost::geometry::get<0>(p), -boost::geometry::get<1>(p)});
-        }
-        polygons.push_back(std::move(v));
-    }        
-}
-
-size_t ShapefileModel::itemsCount() const
-{
-    return polygons.size();
-}
-
-const std::vector<QPointF>& ShapefileModel::getItem(size_t index) const  
-{
-    return polygons[index];
-}
-
-
-
-//=============================
-
 ShapefileView::ShapefileView(QQuickItem *parent)
 : QQuickItem(parent)
 {
@@ -162,13 +116,7 @@ QSGNode* ShapefileView::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 
 	if (!oldNode)
 	{
-        auto node = new QSGClipNode();
-        //
-        // todo: Clip rectange does not work in screen coords, there must be better way to do this
-        auto rc = this->mapRectFromScene(boundingRect());
-        rc.moveTo(0,0);
-        node->setClipRect(rc);
-        node->setIsRectangular(true);
+        auto node = new QSGNode();                
         for (size_t i = 0; i < model->itemsCount(); ++i)
         {
             TessResult result;
@@ -190,8 +138,8 @@ void ShapefileView::setSource(const QString &s)
     if (m_source == s)
         return;
 
-    model.reset(new ShapefileModel(s));
-    std::cout << "About to render " << model->itemsCount() << " items" << std::endl;
+    model.reset(ModelFactory::create(s));
+    //qDebug() << "Added " << model->itemsCount() << " items\n";
     m_source = s;
     emit sourceChanged(m_source);
     update();
