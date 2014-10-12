@@ -1,5 +1,5 @@
 #pragma once
-#include <qshapeview/ShapesModel.hpp>
+#include "ShapesModel.hpp"
 
 class WktShapesModel: public ShapesModel
 {

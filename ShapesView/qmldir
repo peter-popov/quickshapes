@@ -1,0 +1,3 @@
+module ShapesView
+plugin shapesview
+classname <ShapesViewPlugin>

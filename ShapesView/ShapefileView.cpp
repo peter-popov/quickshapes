@@ -1,4 +1,4 @@
-#include <qshapeview/ShapefileView.hpp>
+#include "ShapefileView.hpp"
 #include <QSGSimpleRectNode>
 #include <GL/glut.h>
 #include "WktShapesModel.hpp"

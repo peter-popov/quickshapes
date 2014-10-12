@@ -4,32 +4,14 @@ add_definitions(-std=c++11)
 
 project(quickshapes)
 
-
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+
+add_subdirectory(ShapesView)
 
 find_package(Qt5Widgets	REQUIRED)
 find_package(Qt5Qml REQUIRED)
 find_package(Qt5Quick REQUIRED)
-find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
-
-include_directories(${GLUT_INCLUDE_DIRS})
-include_directories("./include")
-
-
-add_library(qshapeview 
-			SHARED
-			src/ShapefileView.cpp 
-			src/WktShapesModel.cpp
-			src/ShapesViewPlugin.cpp)
-
-target_link_libraries(qshapeview Qt5::Widgets)
-target_link_libraries(qshapeview Qt5::Qml)
-target_link_libraries(qshapeview Qt5::Quick)
-target_link_libraries(qshapeview ${GLUT_LIBRARY})
-target_link_libraries(qshapeview ${OPENGL_LIBRARY})
 
 add_executable(qshapeview_test 
 			   test/main.cpp)
@@ -37,7 +19,7 @@ add_executable(qshapeview_test
 target_link_libraries(qshapeview_test Qt5::Widgets)
 target_link_libraries(qshapeview_test Qt5::Qml)
 target_link_libraries(qshapeview_test Qt5::Quick)	
-target_link_libraries(qshapeview_test qshapeview)
+target_link_libraries(qshapeview_test shapesview)
 
 add_custom_command(TARGET qshapeview_test
 	POST_BUILD

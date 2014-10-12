@@ -1,6 +1,6 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
-import ShapefileView 1.0
+import ShapesView 1.0
 
 ApplicationWindow {
     id: applicationWindow1
@@ -12,7 +12,7 @@ ApplicationWindow {
     ShapefileView {
         id: view
         anchors.fill: parent        
-        source: "../indoor_1.csv"
+        source: "../test/indoor_1.csv"
         transformOrigin : "TopLeft"             
     }
 }
