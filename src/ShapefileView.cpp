@@ -1,4 +1,4 @@
-#include "ShapefileView.hpp"
+#include <qshapeview/ShapefileView.hpp>
 #include <QSGSimpleRectNode>
 #include <GL/glut.h>
 #include "WktShapesModel.hpp"
@@ -18,7 +18,7 @@ struct TessResult
 
 struct GlPointRef
 {
-    std::array<GLdouble,3> coords;
+    GLdouble coords[3];
     TessResult* result;
 };
 
@@ -32,7 +32,7 @@ void CALLBACK tessBeginCB(GLenum which, GLvoid *data)
 void CALLBACK tessVertexCB(const GLvoid *data)
 {
     GlPointRef *ptr = (GlPointRef*)data;
-    ptr->result->points.back().second.push_back({ptr->coords[0], ptr->coords[1]});
+    ptr->result->points.back().second.push_back(QPointF(ptr->coords[0], ptr->coords[1]));
 }
 
 void CALLBACK tessErrorCB(GLenum errorCode, GLvoid *data)
@@ -86,7 +86,7 @@ ShapefileView::~ShapefileView()
 }
 
 
-auto create_geometry_node(GLenum type, const std::vector<QPointF>& points)
+QSGNode* create_geometry_node(GLenum type, const std::vector<QPointF>& points)
 {
     auto node = new QSGGeometryNode;
     auto geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), points.size());

@@ -1,5 +1,5 @@
 #pragma once
-#include "ShapesModel.hpp"
+#include <qshapeview/ShapesModel.hpp>
 
 class WktShapesModel: public ShapesModel
 {
@@ -20,7 +20,7 @@ private:
 class ModelFactory
 {
 public:
-	static auto create(const QString& s)
+	static ShapesModel* create(const QString& s)
 	{
 		//return std::make_unique<WktShapesModel>(s);
 		return new WktShapesModel(s);
