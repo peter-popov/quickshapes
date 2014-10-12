@@ -109,14 +109,38 @@ QSGNode* create_geometry_node(GLenum type, const std::vector<QPointF>& points)
     return node;
 }
 
+QMatrix4x4 fit_matrix(QRectF scene, QRectF canvas)
+{
+    QMatrix4x4 m;
+    if (canvas.width() == 0 || canvas.height() == 0 ||
+        scene.width() == 0 || scene.height() == 0)
+    {
+        m.setToIdentity();
+        return m;
+    }
+
+    auto scale = std::min(std::abs(scene.width() / canvas.width()),
+                          std::abs(scene.height() / canvas.height()));
+
+    auto sign_x = (scene.width() > 0) ^ (canvas.width() > 0) ? -1 : 1;
+    auto sign_y = (scene.height() > 0) ^ (canvas.height() > 0) ? -1 : 1;
+    
+    m(0,0) = sign_x * scale;
+    m(1,1) = sign_y * scale;
+
+    return m;
+}
+
+
 QSGNode* ShapefileView::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 {
     if (!model || model->itemsCount() == 0)
         return nullptr;
-
+    
+    QSGTransformNode* node = dynamic_cast<QSGTransformNode*>(oldNode);    
 	if (!oldNode)
 	{
-        auto node = new QSGNode();                
+        node = new QSGTransformNode();                
         for (size_t i = 0; i < model->itemsCount(); ++i)
         {
             TessResult result;
@@ -125,12 +149,14 @@ QSGNode* ShapefileView::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
             {
                 node->appendChildNode(create_geometry_node(p.first, p.second));    
             }            
-        }
-        node->markDirty(QSGNode::DirtyGeometry);
-        return node;
+        }        
     }
-	
-	return oldNode;
+
+    node->markDirty(QSGNode::DirtyGeometry);
+    if (model.get())
+        node->setMatrix(fit_matrix(boundingRect(), model->boundingRect()));
+    
+	return node;
 }
 
 void ShapefileView::setSource(const QString &s)

@@ -10,9 +10,11 @@ public:
 
 	virtual const std::vector<QPointF>& getItem(size_t index) const;
 
+	virtual QRectF boundingRect() const {return bounding_rect;}
+
 private:
 	std::vector<std::vector<QPointF>> polygons;
-	//QRectF bounding_rect;
+	QRectF bounding_rect;
 };
 
 
