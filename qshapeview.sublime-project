@@ -14,10 +14,10 @@
     	{
 	        // For example, you can use "c++": ["-std=c++11"] to enable C++11 features.
 	        "c++" : 
-	        [
+	        [	
 	        	"-I/usr/include/qt5",	        	
 	        	"-I/usr/include/qt5/QtCore",
-	        	"-I/usr/include/qt5/QtWidgets",
+	        	"-I/usr/include/qt5/QtWidgets",	        	
 	        	"-I/usr/include/qt5/QtQuick",
 				"-I/usr/include/qt5/QtQml",
 				"-I/usr/include",

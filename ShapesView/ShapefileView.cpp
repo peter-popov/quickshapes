@@ -2,6 +2,7 @@
 #include <QSGSimpleRectNode>
 #include <GL/glut.h>
 #include "WktShapesModel.hpp"
+#include <vector>
 
 #ifndef CALLBACK
 #define CALLBACK
@@ -75,6 +76,7 @@ bool triangulate(const std::vector<QPointF>& poly, TessResult& result)
 
 ShapefileView::ShapefileView(QQuickItem *parent)
 : QQuickItem(parent)
+, m_zoom(1.0)
 {
  	setFlag(ItemHasContents, true);
     setFlag(ItemClipsChildrenToShape, true);
@@ -109,13 +111,14 @@ QSGNode* create_geometry_node(GLenum type, const std::vector<QPointF>& points)
     return node;
 }
 
-QMatrix4x4 fit_matrix(QRectF scene, QRectF canvas)
+QMatrix4x4 fit_matrix(QRectF scene, QRectF canvas, double& zoom)
 {
     QMatrix4x4 m;
     if (canvas.width() == 0 || canvas.height() == 0 ||
         scene.width() == 0 || scene.height() == 0)
     {
         m.setToIdentity();
+        zoom = 1.0;
         return m;
     }
 
@@ -127,6 +130,8 @@ QMatrix4x4 fit_matrix(QRectF scene, QRectF canvas)
     
     m(0,0) = sign_x * scale;
     m(1,1) = sign_y * scale;
+
+    zoom = scale;
 
     return m;
 }
@@ -154,7 +159,7 @@ QSGNode* ShapefileView::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 
     node->markDirty(QSGNode::DirtyGeometry);
     if (model.get())
-        node->setMatrix(fit_matrix(boundingRect(), model->boundingRect()));
+        node->setMatrix(fit_matrix(boundingRect(), model->boundingRect(), m_zoom));
     
 	return node;
 }
