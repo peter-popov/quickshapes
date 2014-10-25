@@ -1,6 +1,7 @@
 #include "ShapefileView.hpp"
 #include <QSGSimpleRectNode>
 #include <GL/glut.h>
+#include <QTransform>
 #include "WktShapesModel.hpp"
 #include <vector>
 
@@ -111,7 +112,7 @@ QSGNode* create_geometry_node(GLenum type, const std::vector<QPointF>& points)
     return node;
 }
 
-QMatrix4x4 fit_matrix(QRectF scene, QRectF canvas, double& zoom)
+QMatrix4x4 fit_matrix(QRectF scene, QRectF canvas, double& zoom, QVector2D& translate)
 {
     QMatrix4x4 m;
     if (canvas.width() == 0 || canvas.height() == 0 ||
@@ -128,12 +129,17 @@ QMatrix4x4 fit_matrix(QRectF scene, QRectF canvas, double& zoom)
     auto sign_x = (scene.width() > 0) ^ (canvas.width() > 0) ? -1 : 1;
     auto sign_y = (scene.height() > 0) ^ (canvas.height() > 0) ? -1 : 1;
     
-    m(0,0) = sign_x * scale;
-    m(1,1) = sign_y * scale;
+    QTransform transform;
+    transform.scale(scale, scale);
+
+    translate.setX(scene.x() - canvas.x());
+    translate.setY(scene.y() - canvas.bottom());
+
+    transform.translate(translate.x(), translate.y());
 
     zoom = scale;
 
-    return m;
+    return QMatrix4x4(transform);
 }
 
 
@@ -159,7 +165,7 @@ QSGNode* ShapefileView::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 
     node->markDirty(QSGNode::DirtyGeometry);
     if (model.get())
-        node->setMatrix(fit_matrix(boundingRect(), model->boundingRect(), m_zoom));
+        node->setMatrix(fit_matrix(boundingRect(), model->boundingRect(), m_zoom, m_translate));
     
 	return node;
 }

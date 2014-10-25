@@ -15,7 +15,7 @@ WktShapesModel::WktShapesModel(const QString &wkt_file)
     std::ifstream file(wkt_file.toStdString());   
     if (!file)
         return; 
-	Box bbox;
+	Box bbox = boost::geometry::make_inverse<Box>();
     int skip = 1;    
     for( std::string line; getline( file, line ); )
     {
@@ -44,7 +44,7 @@ WktShapesModel::WktShapesModel(const QString &wkt_file)
     bounding_rect.setLeft(boost::geometry::get<0>(bbox.min_corner()));
     bounding_rect.setRight(boost::geometry::get<0>(bbox.max_corner()));
     bounding_rect.setBottom(boost::geometry::get<1>(bbox.min_corner()));
-    bounding_rect.setTop(boost::geometry::get<1>(bbox.max_corner()));        
+    bounding_rect.setTop(boost::geometry::get<1>(bbox.max_corner()));  
 }
 
 size_t WktShapesModel::itemsCount() const

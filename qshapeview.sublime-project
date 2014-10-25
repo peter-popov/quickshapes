@@ -15,6 +15,7 @@
 	        // For example, you can use "c++": ["-std=c++11"] to enable C++11 features.
 	        "c++" : 
 	        [	
+	        	"-std=c++11",
 	        	"-I/usr/include/qt5",	        	
 	        	"-I/usr/include/qt5/QtCore",
 	        	"-I/usr/include/qt5/QtWidgets",	        	
